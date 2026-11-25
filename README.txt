@@ -1,21 +1,9 @@
-FINANCE TRACK - PROTOTIPO 1
+FINANCE TRACK - PROTOTIPO 2
 
-Para probar:
-1. Descomprimí el ZIP.
-2. Abrí index.html en un navegador compatible.
-3. Cargá movimientos, deudas, compras y ahorros de prueba.
+Incluye registro de ingresos/egresos con eliminación confirmada, ahorros ARS/USD y cotización manual, compras en cuotas (simulador), pagos parciales de deudas, vencimientos con contador de días y obligaciones de pago único o recurrentes mensuales.
 
-Incluye:
-- Dashboard mensual.
-- Registro básico de ingresos y egresos.
-- Obligaciones y vencimientos manuales.
-- Simulación y registro básico de compras en cuotas.
-- Ahorros separados en ARS y USD.
-- Cotización manual ARS/USD y equivalencia automática de los dólares.
-- Historial de cotizaciones.
-- Informe imprimible y exportación CSV.
-- Copia de seguridad JSON.
+Las deudas recurrentes generan una nueva obligación por mes al abrir la app. Cada período conserva su propio saldo y pagos; los importes pendientes de períodos anteriores permanecen registrados y se acumulan en el total pendiente. No se duplican períodos ya generados.
 
-Importante:
-Es un prototipo para validar pantallas y flujo. Los datos quedan guardados localmente en el navegador/dispositivo.
-No es todavía la versión final: falta completar la generación automática de cuotas y vencimientos, el ciclo de cierre de tarjetas, recurrencias, pruebas y endurecimiento de seguridad.
+Los datos se guardan localmente en el navegador del dispositivo. Exportá copias JSON periódicamente. Este prototipo no sincroniza datos entre dispositivos ni ofrece asesoramiento financiero.
+
+Para GitHub Pages: subir el contenido de esta carpeta a la raíz de la rama main y activar Pages en main / (root).
