@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14251f"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>FINANCE TRACK · Prototipo</title>
+<style>
+:root{--bg:#f3f6f4;--ink:#17251f;--muted:#718078;--green:#167653;--line:#e2eae4;--red:#bd5148;--amber:#a8751d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding-bottom:84px}
+header{background:#14251f;color:white;padding:22px 18px 18px;border-radius:0 0 22px 22px}h1{margin:0;font-size:22px;letter-spacing:1px}header small{color:#bdcec4}
+.wrap{max-width:760px;margin:auto;padding:14px}.balance,.card{border-radius:16px;padding:16px;margin:10px 0;background:white;border:1px solid var(--line)}
+.balance{background:#203b30;color:white}.balance small{color:#c0d5c9}.amount{font-size:30px;font-weight:750;margin:8px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.metric small,.hint{color:var(--muted)}.metric strong{display:block;font-size:20px;margin-top:6px}
+.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}h2{font-size:18px;margin:20px 0 8px}
+label{display:block;color:var(--muted);font-size:13px;margin:10px 0 5px}
+input,select{width:100%;padding:12px;border:1px solid #d7e2da;border-radius:10px;font:inherit;background:white}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.btn{border:0;background:var(--green);color:white;border-radius:10px;padding:12px 15px;font-weight:650;margin-top:12px;width:100%;cursor:pointer}
+.secondary{background:#e6f3ec;color:var(--green)}.item{padding:12px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;align-items:center}
+.tabs{position:fixed;bottom:0;background:white;border-top:1px solid var(--line);width:100%;display:flex;justify-content:space-around;padding:9px 2px calc(9px + env(safe-area-inset-bottom));overflow-x:auto}
+.tabs button{border:0;background:none;color:#718078;font-size:10px;min-width:54px;cursor:pointer}.tabs button b{display:block;font-size:18px}.tabs .active{color:var(--green);font-weight:bold}
+.view{display:none}.view.active{display:block}.hint{font-size:12px;line-height:1.4}.bar{height:9px;background:#e7eee9;border-radius:10px;margin:12px 0}.bar span{display:block;height:100%;background:#27936a;border-radius:10px}
+.actions{display:flex;gap:8px}.actions button{flex:1}.empty{padding:15px;text-align:center;color:var(--muted);background:white;border-radius:12px}
+.pill{display:inline-block;padding:5px 9px;border-radius:20px;background:#e6f3ec;color:var(--green);font-size:11px;font-weight:700}
+.totalbox{background:#edf5ef;border-radius:12px;padding:13px;margin-top:12px}.totalbox strong{font-size:21px}
+button:focus,input:focus,select:focus{outline:2px solid #9bcbb4;outline-offset:1px}
+@media(max-width:380px){.tabs button{min-width:47px;font-size:9px}.tabs button b{font-size:16px}}
+</style></head>
+<body>
+<header><h1>FINANCE TRACK</h1><small>Tu dinero, bajo control · Prototipo 1</small><div id="month" style="margin-top:14px;color:#bdcec4"></div></header>
+<main class="wrap">
+<section id="home" class="view active">
+ <div class="balance"><small>Disponible estimado del mes</small><div class="amount" id="avail">$0</div><small>Saldo inicial + ingresos − egresos registrados</small></div>
+ <div class="grid">
+  <div class="card metric"><small>Ingresos del mes</small><strong class="green" id="inc">$0</strong></div>
+  <div class="card metric"><small>Egresos del mes</small><strong class="red" id="out">$0</strong></div>
+  <div class="card metric"><small>Deudas pendientes</small><strong class="amber" id="debt">$0</strong></div>
+  <div class="card metric"><small>Ahorros registrados</small><strong id="save">$0</strong></div>
+ </div>
+ <div class="card"><b>Ingresos utilizados</b><div class="bar"><span id="bar"></span></div><small class="hint" id="pct"></small></div>
+ <h2>Próximos vencimientos</h2><div id="upcoming"></div><h2>Movimientos recientes</h2><div id="recent"></div>
+</section>
+<section id="moves" class="view">
+ <h2>Registrar ingreso o egreso</h2><div class="card"><form id="tx">
+ <div class="formgrid"><div><label>Tipo</label><select id="type"><option value="income">Ingreso</option><option value="expense">Egreso</option></select></div><div><label>Fecha</label><input id="date" type="date" required></div></div>
+ <label>Concepto</label><input id="name" placeholder="Sueldo, supermercado..." required>
+ <div class="formgrid"><div><label>Categoría</label><select id="cat"><option>Sueldo</option><option>Ingreso extra</option><option>Vivienda</option><option>Servicios</option><option>Supermercado</option><option>Transporte</option><option>Salud</option><option>Ocio</option><option>Otros</option></select></div><div><label>Importe ARS</label><input id="amount" type="number" min="1" step="0.01" required></div></div>
+ <button class="btn">Guardar movimiento</button></form></div><h2>Movimientos del mes</h2><div id="txlist"></div>
+</section>
+<section id="debts" class="view">
+ <h2>Servicios y deudas</h2><div class="card"><form id="df"><label>Concepto</label><input id="dn" placeholder="Luz, internet, tarjeta..." required>
+ <div class="formgrid"><div><label>Tipo</label><select id="dt"><option>Servicio</option><option>Tarjeta</option><option>Préstamo</option><option>Otro</option></select></div><div><label>Importe</label><input id="da" type="number" min="1" required></div><div><label>Vencimiento</label><input id="dd" type="date" required></div><div><label>Estado</label><select id="ds"><option value="pending">Pendiente</option><option value="paid">Pagado</option></select></div></div><button class="btn">Agregar obligación</button></form></div><h2>Obligaciones</h2><div id="dl"></div>
+</section>
+<section id="cards" class="view">
+ <h2>Programar compra en cuotas</h2><div class="card"><form id="pf"><label>Tarjeta / entidad</label><input id="cn" placeholder="Visa Banco Nación" required><label>Compra</label><input id="pn" placeholder="Ej. Electrodoméstico" required>
+ <div class="formgrid"><div><label>Fecha de compra</label><input id="pd" type="date" required></div><div><label>Precio total</label><input id="pa" type="number" min="1" required></div><div><label>Cantidad de cuotas</label><input id="ni" type="number" min="1" value="1" required></div><div><label>Interés total (%)</label><input id="ir" type="number" min="0" value="0"></div><div><label>Día de cierre</label><input id="cl" type="number" min="1" max="31"></div><div><label>Día de vencimiento</label><input id="vd" type="number" min="1" max="31"></div></div><button class="btn">Guardar compra</button></form></div><h2>Compras registradas</h2><div id="pl"></div>
+ <div class="card"><b>Simulador rápido</b><div class="formgrid"><div><label>Precio</label><input id="sp" type="number" value="300000"></div><div><label>Cuotas</label><input id="sn" type="number" value="6"></div><div><label>Interés total %</label><input id="sr" type="number" value="0"></div></div><p>Cuota estimada: <b id="sres"></b></p></div>
+</section>
+<section id="savings" class="view">
+ <h2>Mis ahorros</h2><div class="grid">
+  <div class="card metric"><small>Ahorro en pesos</small><strong class="green" id="arsTotal">$0</strong></div>
+  <div class="card metric"><small>Ahorro en dólares</small><strong id="usdTotal">USD 0</strong></div>
+ </div>
+ <div class="card"><form id="sf"><b>Registrar / actualizar ahorros</b>
+  <label>Moneda</label><select id="scurrency"><option value="ARS">Pesos argentinos (ARS)</option><option value="USD">Dólares (USD)</option></select>
+  <label>Concepto o ubicación (opcional)</label><input id="sname" placeholder="Efectivo, caja de ahorro, etc.">
+  <label>Monto que tenés ahorrado</label><input id="samount" type="number" min="0.01" step="0.01" placeholder="Ej. 500000" required>
+  <button class="btn">Guardar ahorro</button></form><p class="hint">Podés cargar distintos ahorros por separado. Se suman por moneda.</p></div>
+ <div class="card"><b>Convertidor de dólares a pesos</b><label>Cotización que querés utilizar (ARS por USD)</label><input id="rate" type="number" min="0.01" step="0.01" placeholder="Ej. 1500">
+  <label>Fecha de la cotización</label><input id="rateDate" type="date">
+  <div class="totalbox"><small>Equivalencia de tus dólares</small><br><strong id="usdValueARS">$0</strong><p class="hint" id="rateHint">Ingresá una cotización para calcular la equivalencia.</p></div>
+ </div>
+ <h2>Detalle de ahorros</h2><div id="savingsList"></div>
+ <h2>Historial de cotizaciones</h2><div id="ratesList"></div>
+</section>
+<section id="reports" class="view">
+ <h2>Informes</h2><div class="card"><label>Mes a informar</label><input id="rm" type="month"><p class="hint">PDF imprimible y CSV compatible con Excel.</p><div class="actions"><button class="btn" id="pdf">Exportar PDF</button><button class="btn secondary" id="csv">Exportar CSV</button></div></div><div class="card" id="summary"></div>
+</section>
+<section id="settings" class="view">
+ <h2>Configuración</h2><div class="card"><form id="pfm"><label>Nombre</label><input id="user"><label>Saldo inicial disponible en ARS</label><input id="opening" type="number" value="0"><button class="btn">Guardar perfil</button></form></div>
+ <div class="card"><p class="hint">Los datos de este prototipo se guardan en este navegador y dispositivo. Descargá copias de seguridad periódicamente.</p><button class="btn secondary" id="backup">Descargar copia JSON</button><label class="btn secondary">Restaurar copia JSON<input id="restore" type="file" accept=".json" hidden></label></div>
+</section>
+</main>
+<nav class="tabs">
+ <button class="active" data-v="home"><b>⌂</b>Inicio</button><button data-v="moves"><b>＋</b>Movimientos</button><button data-v="debts"><b>▤</b>Deudas</button><button data-v="cards"><b>▣</b>Tarjetas</button><button data-v="savings"><b>$</b>Ahorros</button><button data-v="reports"><b>▥</b>Informes</button><button data-v="settings"><b>⚙</b>Más</button>
+</nav>
+<script>
+const KEY='finance_track_prototype_v1',today=()=>new Date().toISOString().slice(0,10),month=()=>today().slice(0,7);
+const defaults={tx:[],debts:[],purchases:[],savings:[],rates:[],profile:{name:'',opening:0}};
+let db;try{db={...defaults,...JSON.parse(localStorage.getItem(KEY)||'{}')};db.profile={...defaults.profile,...db.profile}}catch{db=structuredClone(defaults)}
+const $=id=>document.getElementById(id),money=(n,c='ARS')=>new Intl.NumberFormat('es-AR',{style:'currency',currency:c,maximumFractionDigits:2}).format(+n||0),sum=a=>a.reduce((s,x)=>s+(+x.amount||0),0),esc=s=>String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function persist(){localStorage.setItem(KEY,JSON.stringify(db));render()}
+function nav(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('[data-v]').forEach(b=>b.classList.toggle('active',b.dataset.v===id))}
+document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>nav(b.dataset.v));
+function render(){
+ const m=month(),tx=db.tx.filter(x=>x.date?.slice(0,7)===m),inc=sum(tx.filter(x=>x.type==='income')),out=sum(tx.filter(x=>x.type==='expense')),pending=sum(db.debts.filter(x=>x.status==='pending'));
+ $('month').textContent=new Date().toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+ $('avail').textContent=money((+db.profile.opening||0)+inc-out);$('inc').textContent=money(inc);$('out').textContent=money(out);$('debt').textContent=money(pending);
+ const ars=sum(db.savings.filter(x=>x.currency==='ARS')),usd=sum(db.savings.filter(x=>x.currency==='USD'));$('save').textContent=money(ars)+ (usd?` + ${money(usd,'USD')}`:'');
+ const pct=inc?Math.min(100,Math.round(out/inc*100)):0;$('bar').style.width=pct+'%';$('pct').textContent=`${pct}% de los ingresos registrados se destinaron a egresos.`;
+ $('upcoming').innerHTML=db.debts.filter(x=>x.status==='pending').sort((a,b)=>a.due.localeCompare(b.due)).slice(0,5).map(x=>`<div class="item"><span>${esc(x.name)}<br><small>${x.due}</small></span><b>${money(x.amount)}</b></div>`).join('')||'<div class="empty">Sin vencimientos pendientes.</div>';
+ $('recent').innerHTML=db.tx.slice(-5).reverse().map(x=>`<div class="item"><span>${esc(x.name)}<br><small>${x.date}</small></span><b class="${x.type==='income'?'green':'red'}">${x.type==='income'?'+':'−'}${money(x.amount)}</b></div>`).join('')||'<div class="empty">Todavía no hay movimientos.</div>';
+ $('txlist').innerHTML=tx.slice().reverse().map(x=>`<div class="item"><span>${esc(x.name)}<br><small>${x.date} · ${esc(x.cat)}</small></span><b>${money(x.amount)}</b></div>`).join('')||'<div class="empty">No hay movimientos en el mes.</div>';
+ $('dl').innerHTML=db.debts.map(x=>`<div class="item"><span>${esc(x.name)}<br><small>${esc(x.type)} · ${x.due} · ${x.status==='pending'?'Pendiente':'Pagado'}</small></span><span><b>${money(x.amount)}</b><br><button class="btn secondary" style="width:auto;padding:6px" onclick="toggleDebt('${x.id}')">${x.status==='pending'?'Marcar pagado':'Reabrir'}</button></span></div>`).join('')||'<div class="empty">No hay obligaciones cargadas.</div>';
+ $('pl').innerHTML=db.purchases.map(x=>`<div class="item"><span>${esc(x.item)}<br><small>${esc(x.card)} · ${x.n} cuotas · ${x.first}</small></span><b>${money(x.each)} / cuota</b></div>`).join('')||'<div class="empty">No hay compras programadas.</div>';
+ $('arsTotal').textContent=money(ars);$('usdTotal').textContent=money(usd,'USD');$('savingsList').innerHTML=db.savings.map(x=>`<div class="item"><span>${esc(x.name||'Ahorro')}<br><small>${x.currency} · ${x.date}</small></span><b>${money(x.amount,x.currency)}</b></div>`).join('')||'<div class="empty">Todavía no registraste ahorros.</div>';
+ const rate=+(db.currentRate||0);$('rate').value=rate||'';$('rateDate').value=db.currentRateDate||today();$('usdValueARS').textContent=rate?money(usd*rate):money(0);$('rateHint').textContent=rate?`${money(usd,'USD')} × ${money(rate)} por dólar · cotización del ${db.currentRateDate||'sin fecha'}`:'Ingresá una cotización para calcular la equivalencia.';
+ $('ratesList').innerHTML=db.rates.slice().reverse().map(x=>`<div class="item"><span>${x.date}<br><small>Cotización guardada</small></span><b>${money(x.rate)}</b></div>`).join('')||'<div class="empty">Todavía no hay historial de cotizaciones.</div>';
+ $('user').value=db.profile.name||'';$('opening').value=db.profile.opening||0;report();
+}
+window.toggleDebt=id=>{const x=db.debts.find(y=>y.id===id);if(x)x.status=x.status==='pending'?'paid':'pending';persist()};
+$('date').value=today();$('pd').value=today();$('rm').value=month();$('rateDate').value=today();
+$('tx').onsubmit=e=>{e.preventDefault();db.tx.push({id:crypto.randomUUID(),type:$('type').value,date:$('date').value,name:$('name').value,cat:$('cat').value,amount:+$('amount').value});e.target.reset();$('date').value=today();persist()};
+$('df').onsubmit=e=>{e.preventDefault();db.debts.push({id:crypto.randomUUID(),name:$('dn').value,type:$('dt').value,amount:+$('da').value,due:$('dd').value,status:$('ds').value});e.target.reset();persist()};
+$('pf').onsubmit=e=>{e.preventDefault();const n=+$('ni').value,total=+$('pa').value*(1+(+$('ir').value)/100),d=new Date($('pd').value+'T12:00:00');d.setMonth(d.getMonth()+1);db.purchases.push({id:crypto.randomUUID(),card:$('cn').value,item:$('pn').value,n,total,each:total/n,first:d.toISOString().slice(0,10),close:$('cl').value,due:$('vd').value});e.target.reset();$('pd').value=today();persist()};
+$('sf').onsubmit=e=>{e.preventDefault();db.savings.push({id:crypto.randomUUID(),currency:$('scurrency').value,name:$('sname').value,amount:+$('samount').value,date:today()});e.target.reset();persist();alert('Ahorro registrado')};
+$('rate').onchange=()=>{const rate=+$('rate').value,date=$('rateDate').value||today();if(rate>0){db.currentRate=rate;db.currentRateDate=date;db.rates.push({rate,date});persist()}};
+$('rateDate').onchange=()=>{if(db.currentRate){db.currentRateDate=$('rateDate').value;persist()}};
+function sim(){const v=(+$('sp').value)*(1+(+$('sr').value)/100)/Math.max(1,+$('sn').value);$('sres').textContent=money(v)}['sp','sn','sr'].forEach(x=>$(x).oninput=sim);
+$('pfm').onsubmit=e=>{e.preventDefault();db.profile={name:$('user').value,opening:+$('opening').value};persist();alert('Perfil guardado')};
+function report(){const m=$('rm').value||month(),t=db.tx.filter(x=>x.date?.slice(0,7)===m),i=sum(t.filter(x=>x.type==='income')),o=sum(t.filter(x=>x.type==='expense'));$('summary').innerHTML=`<p>Ingresos: <b class="green">${money(i)}</b></p><p>Egresos: <b class="red">${money(o)}</b></p><p>Resultado del mes: <b>${money(i-o)}</b></p><p>Deudas pendientes: <b>${money(sum(db.debts.filter(x=>x.status==='pending')))}</b></p><p>Ahorro en ARS: <b>${money(sum(db.savings.filter(x=>x.currency==='ARS')))}</b></p><p>Ahorro en USD: <b>${money(sum(db.savings.filter(x=>x.currency==='USD')),'USD')}</b></p>`}
+$('rm').onchange=report;
+$('csv').onclick=()=>{const m=$('rm').value,t=db.tx.filter(x=>x.date?.slice(0,7)===m),rows=[['Fecha','Tipo','Concepto','Categoría','Importe ARS'],...t.map(x=>[x.date,x.type,x.name,x.cat,x.amount])];download(`finance-track-${m}.csv`,'\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n'),'text/csv;charset=utf-8')};
+$('pdf').onclick=()=>{const m=$('rm').value,t=db.tx.filter(x=>x.date?.slice(0,7)===m),i=sum(t.filter(x=>x.type==='income')),o=sum(t.filter(x=>x.type==='expense')),w=open('','_blank');w.document.write(`<h1>FINANCE TRACK</h1><h2>Informe ${m}</h2><p>Ingresos: ${money(i)}</p><p>Egresos: ${money(o)}</p><h3>Resultado: ${money(i-o)}</h3><table border="1" cellpadding="8"><tr><th>Fecha</th><th>Tipo</th><th>Concepto</th><th>Importe</th></tr>${t.map(x=>`<tr><td>${x.date}</td><td>${x.type}</td><td>${esc(x.name)}</td><td>${money(x.amount)}</td></tr>`).join('')}</table><script>window.print()<\/script>`);w.document.close()};
+function download(n,s,t){const a=document.createElement('a'),u=URL.createObjectURL(new Blob([s],{type:t}));a.href=u;a.download=n;a.click();URL.revokeObjectURL(u)}
+$('backup').onclick=()=>download('finance-track-backup.json',JSON.stringify(db,null,2),'application/json');
+$('restore').onchange=async e=>{try{db={...defaults,...JSON.parse(await e.target.files[0].text())};db.profile={...defaults.profile,...db.profile};persist();alert('Copia restaurada')}catch{alert('Archivo inválido')}};
+render();sim();
+</script></body></html>
